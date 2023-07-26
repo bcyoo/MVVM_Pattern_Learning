@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CRUD.MVVM"
-        xmlns:converters="clr-namespace:CRUD.MVVM.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        
+        xmlns:converters="clr-namespace:CRUD.MVVM.Converters"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -29,14 +31,24 @@
             Width="80"
             HorizontalAlignment="Right"
             Content="Search"/>
-        <DataGrid
-       x:Name="MemberDataGrid"
-       Grid.Row="1"
-       Margin="0 10 0 0"
-       AutoGenerateColumns="False"
-       IsReadOnly="True"
-       ItemsSource="{Binding Members}">
-        <!--Members Property를 바인딩 하도록 {Binding Members}를 사용함-->
+        <DataGrid x:Name="MemberDataGrid" Grid.Row="1" Margin="0 10 0 0" AutoGenerateColumns="False" IsReadOnly="True"
+       ItemsSource="{Binding Members}"> <!--Members Property를 바인딩 하도록 {Binding Members}를 사용함-->
+
+            <!--
+            DataGrid 내부에 EventTrigger와 InvokeCommandAction을 이용해서 
+            SelectionChanged 이벤트가 발생했을때 selectionChangedCommand를 실행할 수 있도록 만들어 준다.
+                Button 컨트롤을 제외한 모든 컨트롤은 이 방법을 ㅣ용해서 이벤트와 커맨드를 연결합니다
+            -->
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SeletectionChanged">
+                    <!--
+                    InvokeCommandAction의 PassEventArgsToCommand="Ture"는 이벤트가 발생할 때 
+                    전달되는 EventArgs를 CommandParameter로 전달할지 여부를 지정할 수 있음
+                    -->
+                    <b:InvokeCommandAction Command="{Binding SelectionChangedCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
         <DataGrid.Columns>
             <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay}" Header="Name" />
             <DataGridTextColumn Binding="{Binding Phone, Mode=TwoWay}" Header="Phone" />
@@ -82,5 +94,31 @@
                 Content="Cancel"
                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}" />
         </StackPanel>
+        <Grid
+            x:Name="DetailGrid"
+            Grid.Row="1"
+            Grid.Column="1"
+            Margin="0 10 0 0"
+            IsEnabled="{Binding IsEditing}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.3*"/>
+                <ColumnDefinition Width="0.7*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Margin="4" Background="Gray">
+                <TextBlock
+                    Margin="4 0 0 0"
+                    Foreground="White"
+                    Text="Id"/>
+            </Border>
+            
+        </Grid>
     </Grid>
 </Window>
